@@ -16,7 +16,9 @@ using boost::asio::ip::tcp;
 
 class Participant {
     public: 
-        void deliver(Message& message);
+        virtual void deliver(Message& message) = 0;
+        virtual void write() = 0;
+        virtual ~Participant() = default;
 };
 
 typedef std::shared_ptr<Participant> ParticipantPointer;
@@ -37,13 +39,13 @@ class Session: public Participant, std::enable_shared_from_this<Session>{
         Session(tcp::socket s, Room &room);
         void start();
         void deliver(Message& message);
-        char* readHeader();
-        char* readBody();
+        char* readHeader(Message &message);
+        char* readBody(Message &message);
         void write();
+        void async_read();
     private:
         tcp::socket clientSocket;
         Room& room;
-        Message& message;
         std::deque<Message> messageQueue; 
 };
 
