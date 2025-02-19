@@ -75,6 +75,10 @@ class Message {
             return true;
         }
 
+        size_t getBodyLength(){
+            return bodyLength_;
+        }
+
     private: 
         char data[header+maxBytes];
         size_t bodyLength_;
