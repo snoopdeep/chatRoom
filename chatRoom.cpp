@@ -46,7 +46,7 @@ void Session::async_read(){
             std::cout<<"Read error "<<ec.message()<<std::endl;
         }
     };
-    boost::asio::async_read_until(socket, buffer, '\n', read_handler);
+    boost::asio::async_read_until(clientSocket, buffer, "\n", read_handler);
 }
 
 void Session::async_write(char *messageBody, size_t messageLength){
