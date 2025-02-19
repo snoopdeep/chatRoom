@@ -1,5 +1,5 @@
 CXX = g++                             
-CXXFLAGS = -std=c++20 -Wall -Wextra
+CXXFLAGS = -std=c++20 -Wall -Wextra -g
 LDFLAGS = -pthread
 LDLIBS = -lboost_system -lboost_thread
 
