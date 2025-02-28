@@ -29,21 +29,22 @@ void Room::deliver(ParticipantPointer participant, Message &message){
     }
 }
 
-void Session::async_read(){
+void Session::async_read() {
     boost::asio::streambuf buffer;
-    auto read_handler = [&](boost::system::error_code ec, std::size_t bytes_transferred){
-        if(!ec){
-            std::string data(boost::asio::buffers_begin(buffer.data()), boost::asio::buffers_begin(buffer.data())+bytes_transferred);
-
+    auto read_handler = [&](boost::system::error_code ec, std::size_t bytes_transferred) {
+        if (!ec) {
+            std::string data(boost::asio::buffers_begin(buffer.data()), boost::asio::buffers_begin(buffer.data()) + bytes_transferred);
             buffer.consume(bytes_transferred);
             std::cout << "Received: " << data << std::endl;
             Message message(data);
-            deliver(message); 
+            deliver(message);
             async_read();
-        }else if(ec == boost::asio::error::eof){
-            std::cout<<"Connection closed by peer"<<std::endl;
-        }else{
-            std::cout<<"Read error "<<ec.message()<<std::endl;
+        } else if (ec == boost::asio::error::eof) {
+            std::cout << "Connection closed by peer" << std::endl;
+            room.leave(shared_from_this());
+        } else {
+            std::cout << "Read error " << ec.message() << std::endl;
+            room.leave(shared_from_this());
         }
     };
     boost::asio::async_read_until(clientSocket, buffer, "\n", read_handler);
@@ -86,27 +87,34 @@ void Session::deliver(Message& incomingMessage){
     messageQueue.push_back(incomingMessage);
     room.deliver(shared_from_this(), incomingMessage);
 }
+using boost::asio::ip::address_v4;
 
-
-
-void accept_connection(boost::asio::io_context &io, char *port, Room &room){
+void accept_connection(boost::asio::io_context &io, char *port, Room &room, const tcp::endpoint& endpoint) {
+    tcp::acceptor acceptor(io, tcp::endpoint(address_v4::any(), std::atoi(port)));
     tcp::socket socket(io);
-    tcp::acceptor acceptor(io, tcp::endpoint(tcp::v4(), std::atoi(port)));
-    acceptor.async_accept(socket, [&](boost::system::error_code ec){
-        if(!ec){
+    acceptor.async_accept([&](boost::system::error_code ec, tcp::socket socket) {
+        if(!ec) {
             std::make_shared<Session>(std::move(socket), room)->start();
-        }else{
-            std::cerr << "Accept error: " << ec.message() << std::endl;
         }
-        accept_connection(io, port, room);
+        accept_connection(io, port, room, endpoint);
     });
-
 }
 
-int main(int argc, char* argv[]){
-    boost::asio::io_context io;
-    Room room;
-    accept_connection(io, argv[1], room);
-    io.run();
+
+int main(int argc, char *argv[]) {
+    try {
+        if(argc < 2) {
+            std::cerr << "Usage: server <port> [<port> ...]\n";
+            return 1;
+        }
+        Room room;
+        boost::asio::io_context io_context;
+        tcp::endpoint endpoint(tcp::v4(), atoi(argv[1]));
+        accept_connection(io_context, argv[1], room, endpoint);
+        io_context.run();
+    }
+    catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << "\n";
+    }
     return 0;
 }
