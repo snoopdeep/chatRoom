@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cstdio>
 #include <string>
+#include <iostream>
 
 /* 
 header is of 4 bytes and maxBytes can be stored as 512 bytes

@@ -44,6 +44,7 @@ class Session: public Participant, std::enable_shared_from_this<Session>{
         void async_write(char *messageBody, size_t messageLength);
     private:
         tcp::socket clientSocket;
+        boost::asio::streambuf buffer;
         Room& room;
         std::deque<Message> messageQueue; 
 };
