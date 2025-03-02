@@ -25,17 +25,13 @@ typedef std::shared_ptr<Participant> ParticipantPointer;
 
 class Room{
     public:
-        void join();
+        void join(ParticipantPointer participant);
         void leave(ParticipantPointer participant);
         void deliver(ParticipantPointer participantPointer, Message &message);
-        void setParticipant(ParticipantPointer pptr){
-            participantPtr = std::move(pptr);
-        }
     private:
         std::deque<Message> messageQueue;
         enum {maxParticipants = 100};
         std::set<ParticipantPointer> participants;
-        ParticipantPointer participantPtr;
 };
 
 class Session: public Participant, public std::enable_shared_from_this<Session>{

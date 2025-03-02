@@ -10,8 +10,8 @@ room will call write() function to write any message to the client's queue
 It will trigger the write() for each participant except the sender itself
 */
 
-void Room::join(){
-    this->participants.insert(participantPtr);
+void Room::join(ParticipantPointer participant){
+    this->participants.insert(participant);
 }
 
 void Room::leave(ParticipantPointer participant){
@@ -70,7 +70,7 @@ void Session::async_write(char *messageBody, size_t messageLength){
 }
 
 void Session::start(){
-    room.join();
+    room.join(shared_from_this());
     async_read();
 }
 
@@ -102,7 +102,6 @@ void accept_connection(boost::asio::io_context &io, char *port,tcp::acceptor &ac
     acceptor.async_accept([&](boost::system::error_code ec, tcp::socket socket) {
         if(!ec) {
             std::shared_ptr<Session> session = std::make_shared<Session>(std::move(socket), room);
-            room.setParticipant(session);
             session->start();
         }
         accept_connection(io, port,acceptor, room, endpoint);
