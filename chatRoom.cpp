@@ -97,30 +97,31 @@ void Session::deliver(Message& incomingMessage){
 }
 using boost::asio::ip::address_v4;
 
-void accept_connection(boost::asio::io_context &io, tcp::acceptor &acceptor, Room &room) {
+void accept_connection(boost::asio::io_context &io, char *port,tcp::acceptor &acceptor, Room &room, const tcp::endpoint& endpoint) {
+    tcp::socket socket(io);
     acceptor.async_accept([&](boost::system::error_code ec, tcp::socket socket) {
-        if (!ec) {
-            std::make_shared<Session>(std::move(socket), room)->start();
+        if(!ec) {
+            std::shared_ptr<Session> session = std::make_shared<Session>(std::move(socket), room);
+            session->start();
         }
-        accept_connection(io, acceptor, room);
+        accept_connection(io, port,acceptor, room, endpoint);
     });
 }
 
+
 int main(int argc, char *argv[]) {
     try {
-        if (argc < 2) {
-            std::cerr << "Usage: server <port>\n";
+        if(argc < 2) {
+            std::cerr << "Usage: server <port> [<port> ...]\n";
             return 1;
         }
-
-        boost::asio::io_context io_context;
         Room room;
-        
+        boost::asio::io_context io_context;
+        tcp::endpoint endpoint(tcp::v4(), atoi(argv[1]));
         tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), std::atoi(argv[1])));
-        accept_connection(io_context, acceptor, room);
-        
+        accept_connection(io_context, argv[1], acceptor, room, endpoint);
         io_context.run();
-    } 
+    }
     catch (std::exception& e) {
         std::cerr << "Exception: " << e.what() << "\n";
     }
