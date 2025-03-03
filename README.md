@@ -139,11 +139,25 @@ classDiagram
     Session -- AsyncPattern : implements
     Message -- MessageFlow : participates-in
     
-    note for MessageFlow "Message path:\n1. Client input → Client socket\n2. Server reads from socket\n3. Server creates Message\n4. Room broadcasts to participants\n5. Each Session queues message\n6. Session writes to client socket"
+    note for MessageFlow "Message path: 
+    1. Client input → Client socket
+    2. Server reads from socket
+    3. Server creates Message
+    4. Room broadcasts to participants
+    5. Each Session queues message
+    6. Session writes to client socket"
     
-    note for Thread_Model "Thread architecture:\n1. Main thread runs io_context\n2. Client has dedicated input thread\n3. All async operations handled by io_context\n4. Socket operations are non-blocking"
+    note for Thread_Model "Thread architecture:
+    1. Main thread runs io_context
+    2. Client has dedicated input thread
+    3. All async operations handled by io_context
+    4. Socket operations are non-blocking"
     
-    note for AsyncPattern "Asynchronous operations:\n1. async_read_until() with completion handler\n2. async_write() with completion handler\n3. Handlers capture shared_from_this()\n4. post() for thread-safe socket writes"
+    note for AsyncPattern "Asynchronous operations:
+    1. async_read_until() with completion handler
+    2. async_write() with completion handler
+    3. Handlers capture shared_from_this()
+    4. post() for thread-safe socket writes"
 ```
 
 ## Build and Run
