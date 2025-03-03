@@ -58,10 +58,10 @@ void Session::async_read() {
 }
 
 
-void Session::async_write(char *messageBody, size_t messageLength){
+void Session::async_write(std::string messageBody, size_t messageLength){
     auto write_handler = [&](boost::system::error_code ec, std::size_t bytes_transferred){
         if(!ec){
-            std::cout<<"Data is written to the socket: "<<messageBody<<std::endl;
+            std::cout<<"Data is written to the socket: "<<std::endl;
         }else{
             std::cerr << "Write error: " << ec.message() << std::endl;
         }
@@ -83,7 +83,7 @@ void Session::write(Message &message){
         messageQueue.pop_front();
         bool header_decode = message.decodeHeader();
         if(header_decode){
-           char* body = message.getBody(); 
+            std::string body = message.getBody(); 
             async_write(body, message.getBodyLength());
         }else{
             std::cout<<"Message length exceeds the max length"<<std::endl;

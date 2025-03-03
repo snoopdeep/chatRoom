@@ -32,22 +32,19 @@ class Message {
         };
 
         void printMessage(){
-            char* message = getData();
-            std::string s(message);
-            std::cout<<"Message recieved: "<<s<<std::endl;
+            std::string message = getData();
+            std::cout<<"Message recieved: "<<message<<std::endl;
         }
 
-        char* getData(){
+        std::string getData(){
             int length = header + bodyLength_;
-            char result[length+1] = "";
-            strncpy(result, data, length);
+            std::string result(data, length);
             return result;
         }
 
-        char* getBody(){
-            char* data = getData();
-            char result[bodyLength_+1] = "";
-            strncpy(result, data+header, bodyLength_); 
+        std::string getBody(){
+            std::string dataStr = getData();
+            std::string result = dataStr.substr(header, bodyLength_);
             return result;
         }
 
@@ -64,15 +61,16 @@ class Message {
             memcpy(data, new_header, header);
         }
         
-        bool decodeHeader(){
+       bool decodeHeader(){
             char new_header[header+1] = "";
-            strncat(new_header, data, header);
-            int header = atoi(new_header);
-            if(header>maxBytes){
+            strncpy(new_header, data, header);
+            new_header[header] = '\0';
+            int headerValue = atoi(new_header);
+            if(headerValue > maxBytes){
                 bodyLength_ = 0;
                 return false;
             }
-            bodyLength_ = header;
+            bodyLength_ = headerValue;
             return true;
         }
 

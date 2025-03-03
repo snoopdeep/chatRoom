@@ -32,16 +32,23 @@ int main(int argc, char* argv[]){
 
     boost::asio::connect(socket, resolver.resolve("127.0.0.1", argv[1]));
 
-    async_read(socket); 
+    async_read(socket);
 
-    while (true) {
-        std::string data;
-        std::cout << "Enter message: ";
-        std::getline(std::cin, data);
-        data += "\n";  
+    std::thread t([&io_context, &socket]() {
+        while (true) {
+            std::string data;
+            std::cout << "Enter message: ";
+            std::getline(std::cin, data);
+            data += "\n";
 
-        boost::asio::write(socket, boost::asio::buffer(data));
-    }
+            boost::asio::post(io_context, [&, data]() {
+                boost::asio::write(socket, boost::asio::buffer(data));
+            });
+        }
+    });
+
+    io_context.run();
+    t.join();
 
     return 0;
 }
