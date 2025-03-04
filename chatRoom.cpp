@@ -3,7 +3,7 @@
 /*
 when client joins, it should join a room.
 hence a session(socket, room) will be created and this client will have a session
-now, whenever it wants to start its delivery it call call start() function, where it will listen for incoming messages
+now, whenever it wants to start its delivery it call call start() function, where it will listen for incoming messages and push to the message Queue of the room
 when client wants to send message it can call session's deliver() message
 session will call deliver() to deliver the message to the room
 room will call write() function to write any message to the client's queue
@@ -92,7 +92,6 @@ void Session::write(Message &message){
 }
 
 void Session::deliver(Message& incomingMessage){
-    messageQueue.push_back(incomingMessage);
     room.deliver(shared_from_this(), incomingMessage);
 }
 using boost::asio::ip::address_v4;
