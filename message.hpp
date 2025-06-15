@@ -7,17 +7,6 @@
 #include <string>
 #include <iostream>
 
-/* 
-header is of 4 bytes and maxBytes can be stored as 512 bytes
-header stores the body length that is the current body length
-data stores the header+bodyLength with maximum size of header+maxBytes
-
-client attempts to send message:- It will encode header and put message into the data and send data
-server gets the message, decodes the header, get the bodylength from the header and hence complete body
-then server sends the message to all the clients connected to that room.
-*/
-
-
 class Message {
     public: 
         Message() : bodyLength_(0) {}
